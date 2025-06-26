@@ -1,6 +1,13 @@
-'use client';
-import React, { useState, useRef, useEffect } from 'react';
-import { useCreateChatMutation, useAddMessageToChatMutation, useGetUsersChatListQuery } from '../../store/apiSlice';
+"use client";
+import React, { useState, useRef, useEffect } from "react";
+import {
+  useCreateChatMutation,
+  useAddMessageToChatMutation,
+  useGetUsersChatListQuery,
+} from "../../store/apiSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { setOpenChatDrawer } from "@/store/uiSlice";
+import { RootState } from "@/store/store";
 
 interface ChatProps {
   onClose: () => void;
@@ -8,59 +15,74 @@ interface ChatProps {
 
 export default function Chat({ onClose }: ChatProps) {
   const MODELS = [
-    { name: 'Chartwright' },
-    { name: 'TranscriptX' },
-    { name: 'Redactify' },
-    { name: 'Validify' },
+    { name: "Chartwright" },
+    { name: "TranscriptX" },
+    { name: "Redactify" },
+    { name: "Validify" },
   ];
+
+  const dispatch = useDispatch();
   const [selectedModel, setSelectedModel] = useState(MODELS[0].name);
-  const [messages, setMessages] = useState<{ sender: 'user' | 'ai'; text: string }[]>([]);
-  const [input, setInput] = useState('');
-  const [chatStarted, setChatStarted] = useState(false);
+  const [messages, setMessages] = useState<
+    { sender: "user" | "ai"; text: string }[]
+  >([]);
+  const [input, setInput] = useState("");
+  const chatDrawerOpen = useSelector((state: RootState) => state.ui.chatDrawerOpen);
+  const [chatStarted, setChatStarted] = useState<boolean>(false);
   const [chatId, setChatId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [createChat] = useCreateChatMutation();
   const [addMessageToChat] = useAddMessageToChatMutation();
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [search, setSearch] = useState('');
-  const { data: chatListData, isLoading: chatListLoading } = useGetUsersChatListQuery(undefined, { skip: !drawerOpen });
+  const [search, setSearch] = useState("");
+  const { data: chatListData, isLoading: chatListLoading } =
+    useGetUsersChatListQuery(undefined, { skip: !chatDrawerOpen });
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
-    setMessages((msgs) => [...msgs, { sender: 'user', text: input }]);
+    setMessages((msgs) => [...msgs, { sender: "user", text: input }]);
     setLoading(true);
     try {
       if (!chatStarted) {
-        const res = await createChat({ model_name: selectedModel, message_content: input }).unwrap();
+        const res = await createChat({
+          model_name: selectedModel,
+          message_content: input,
+        }).unwrap();
         const chatMessages = res?.data?.messages || [];
         const formattedMessages = chatMessages.map((msg: any) => ({
-          sender: msg.sent_by === 'bot' ? 'ai' : 'user',
+          sender: msg.sent_by === "bot" ? "ai" : "user",
           text: msg.message_content,
         }));
         setMessages(formattedMessages);
         setChatStarted(true);
         setChatId(res?.data?.id || null);
       } else {
-        if (!chatId) throw new Error('No chat ID');
-        const res = await addMessageToChat({ chat_id: chatId, message_content: input, model_name: selectedModel }).unwrap();
+        if (!chatId) throw new Error("No chat ID");
+        const res = await addMessageToChat({
+          chat_id: chatId,
+          message_content: input,
+          model_name: selectedModel,
+        }).unwrap();
         const chatMessages = res?.data?.messages || [];
         const formattedMessages = chatMessages.map((msg: any) => ({
-          sender: msg.sent_by === 'bot' ? 'ai' : 'user',
+          sender: msg.sent_by === "bot" ? "ai" : "user",
           text: msg.message_content,
         }));
         setMessages(formattedMessages);
       }
     } catch (err) {
-      setMessages((msgs) => [...msgs, { sender: 'ai', text: 'Error: Failed to get AI response.' }]);
+      setMessages((msgs) => [
+        ...msgs,
+        { sender: "ai", text: "Error: Failed to get AI response." },
+      ]);
     } finally {
       setLoading(false);
-      setInput('');
+      setInput("");
     }
   };
 
@@ -72,35 +94,50 @@ export default function Chat({ onClose }: ChatProps) {
   };
 
   // Filtered chat list
-  const filteredChats = (chatListData?.data || []).filter((chat: any) =>
-    search.trim() === '' ||
-    (chat.title && chat.title.toLowerCase().includes(search.toLowerCase())) ||
-    (chat.messages && chat.messages.some((m: any) => m.message_content.toLowerCase().includes(search.toLowerCase())))
+  const filteredChats = (chatListData?.data || []).filter(
+    (chat: any) =>
+      search.trim() === "" ||
+      (chat.title && chat.title.toLowerCase().includes(search.toLowerCase())) ||
+      (chat.messages &&
+        chat.messages.some((m: any) =>
+          m.message_content.toLowerCase().includes(search.toLowerCase())
+        ))
   );
 
   return (
     <div className="w-full h-full flex flex-col  bg-white dark:bg-gray-800 relative">
-      {/* Hamburger Button */}
-      <button
-        className="absolute top-4 right-4 z-30 p-2 rounded hover:bg-blue-100 focus:outline-none"
-        onClick={() => setDrawerOpen(true)}
-        title="Open chat history"
-      >
-        <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-blue-600">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
+
       {/* Drawer */}
       <div
         className={`fixed top-0 right-0 h-full w-[350px] bg-white dark:bg-gray-900 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out
-          ${drawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
-        style={{ boxShadow: drawerOpen ? 'rgba(0,0,0,0.15) 0px 0px 40px 0px' : undefined }}
+          ${chatDrawerOpen ? "translate-x-0" : "translate-x-full"}`}
+        style={{
+          boxShadow: chatDrawerOpen
+            ? "rgba(0,0,0,0.15) 0px 0px 40px 0px"
+            : undefined,
+        }}
       >
         <div className="flex items-center justify-between px-4 py-4 border-b dark:border-gray-700">
-          <span className="font-bold text-lg text-gray-900 dark:text-gray-100">Chat History</span>
-          <button onClick={() => setDrawerOpen(false)} className="text-gray-500 hover:text-red-500 p-2 rounded focus:outline-none">
-            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <span className="font-bold text-lg text-gray-900 dark:text-gray-100">
+            Chat History
+          </span>
+          <button
+            onClick={() => dispatch(setOpenChatDrawer(false))}
+            className="text-gray-500 hover:text-red-500 p-2 rounded focus:outline-none"
+          >
+            <svg
+              width="24"
+              height="24"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -110,7 +147,7 @@ export default function Chat({ onClose }: ChatProps) {
             className="w-full px-3 py-2 rounded border dark:bg-gray-800 dark:text-gray-100"
             placeholder="Search chats..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <div className="flex-1 overflow-y-scroll p-4 space-y-3">
@@ -127,22 +164,30 @@ export default function Chat({ onClose }: ChatProps) {
                   if (chat.messages && chat.messages.length > 0) {
                     const model = chat.messages[0].model_name || MODELS[0].name;
                     setSelectedModel(model);
-                    setMessages(chat.messages.map((msg: any) => ({
-                      sender: msg.sent_by === 'bot' ? 'ai' : 'user',
-                      text: msg.message_content,
-                    })));
+                    setMessages(
+                      chat.messages.map((msg: any) => ({
+                        sender: msg.sent_by === "bot" ? "ai" : "user",
+                        text: msg.message_content,
+                      }))
+                    );
                     setChatStarted(true);
                     setChatId(chat.id);
-                    setDrawerOpen(false);
+                    dispatch(setOpenChatDrawer(false));
                   }
                 }}
               >
-                <div className="font-semibold text-gray-900 dark:text-gray-100 truncate">{chat.title || 'Untitled Chat'}</div>
+                <div className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                  {chat.title || "Untitled Chat"}
+                </div>
                 <div className="text-xs text-gray-500 mt-1 truncate">
-                  {chat.messages && chat.messages.length > 0 ? chat.messages[chat.messages.length-1].message_content : 'No messages'}
+                  {chat.messages && chat.messages.length > 0
+                    ? chat.messages[chat.messages.length - 1].message_content
+                    : "No messages"}
                 </div>
                 <div className="text-xs text-gray-400 mt-1">
-                  {chat.timestamp ? new Date(chat.timestamp).toLocaleString() : ''}
+                  {chat.timestamp
+                    ? new Date(chat.timestamp).toLocaleString()
+                    : ""}
                 </div>
               </button>
             ))
@@ -150,10 +195,10 @@ export default function Chat({ onClose }: ChatProps) {
         </div>
       </div>
       {/* Overlay to close drawer */}
-      {drawerOpen && (
+      {chatDrawerOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-20 z-40"
-          onClick={() => setDrawerOpen(false)}
+          className="fixed inset-0 bg-transparent z-40"
+          onClick={() => dispatch(setOpenChatDrawer(false))}
         />
       )}
       {/* Tabs */}
@@ -165,11 +210,17 @@ export default function Chat({ onClose }: ChatProps) {
               key={model.name}
               onClick={() => handleTabClick(model.name)}
               className={`px-6 py-2 rounded-t-xl font-semibold transition border-2 focus:outline-none
-                ${isActive
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-lg -mb-1 z-20'
-                  : 'bg-white text-blue-600 border-blue-600 hover:bg-blue-50 z-10'}
+                ${
+                  isActive
+                    ? "bg-blue-600 text-white border-blue-600 shadow-lg -mb-1 z-20"
+                    : "bg-white text-blue-600 border-blue-600 hover:bg-blue-50 z-10"
+                }
               `}
-              style={{ minWidth: 130, position: 'relative', top: isActive ? '2px' : '6px' }}
+              style={{
+                minWidth: 130,
+                position: "relative",
+                top: isActive ? "2px" : "6px",
+              }}
             >
               {model.name}
             </button>
@@ -180,15 +231,34 @@ export default function Chat({ onClose }: ChatProps) {
       <div className="h-0.5 bg-blue-100 w-full absolute left-0 top-[62px] z-0" />
       {/* Chat header */}
       <div className="flex items-center justify-between px-6 py-4 border-b dark:border-gray-700 bg-white dark:bg-gray-800 rounded-t-2xl z-10">
-        <span className="font-bold text-lg text-gray-900 dark:text-gray-100">AI Chat</span>
-        <button onClick={onClose} className="text-gray-500 hover:text-red-500">✖</button>
+        <span className="font-bold text-lg text-gray-900 dark:text-gray-100">
+          AI Chat
+        </span>
+        <button onClick={onClose} className="text-gray-500 hover:text-red-500">
+          ✖
+        </button>
       </div>
       {/* Chat messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-2">
-        {messages.length === 0 && <div className="text-gray-400 text-center">Start a conversation...</div>}
+        {messages.length === 0 && (
+          <div className="text-gray-400 text-center">
+            Start a conversation...
+          </div>
+        )}
         {messages.map((msg, idx) => (
-          <div key={idx} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`px-4 py-2 rounded-lg max-w-xs ${msg.sender === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'}`}>
+          <div
+            key={idx}
+            className={`flex ${
+              msg.sender === "user" ? "justify-end" : "justify-start"
+            }`}
+          >
+            <div
+              className={`px-4 py-2 rounded-lg max-w-xs ${
+                msg.sender === "user"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              }`}
+            >
               {msg.text}
             </div>
           </div>
@@ -196,19 +266,26 @@ export default function Chat({ onClose }: ChatProps) {
         <div ref={messagesEndRef} />
       </div>
       {/* Input */}
-      <form onSubmit={handleSend} className="flex gap-2 px-6 py-4 border-t dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-2xl">
+      <form
+        onSubmit={handleSend}
+        className="flex gap-2 px-6 py-4 border-t dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-2xl"
+      >
         <input
           type="text"
           className="flex-1 px-4 py-2 rounded border dark:bg-gray-900 dark:text-gray-100"
           placeholder="Type your message..."
           value={input}
-          onChange={e => setInput(e.target.value)}
+          onChange={(e) => setInput(e.target.value)}
           disabled={loading}
         />
-        <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" disabled={loading}>
-          {loading ? '...' : 'Send'}
+        <button
+          type="submit"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          disabled={loading}
+        >
+          {loading ? "..." : "Send"}
         </button>
       </form>
     </div>
   );
-} 
+}
