@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #0F172A;
+  --secondary: #60A5FA;
+  --navText: #748196;
   --foreground: #171717;
 }
 
@@ -10,6 +12,8 @@
   --font-montserrat: var(--font-montserrat);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-navText: var(--navText);
+  --color-secondary: var(--secondary);
 }
 
 @media (prefers-color-scheme: dark) {

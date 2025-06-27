@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 export default function SignUpPage() {
   const router = useRouter();
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+      <h1 className='text-3xl font-bold mb-4'>Register</h1>
       <RegisterForm onGoToVerification={(email) => router.push(`/verificationCode?email=${encodeURIComponent(email)}`)} />
       <p className="mt-4 text-sm">
         Already have an account?{' '}

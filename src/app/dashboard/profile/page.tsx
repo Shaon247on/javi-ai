@@ -59,7 +59,7 @@ export default function ProfilePage() {
       }).unwrap();
       setSuccess(true);
       setTimeout(() => setSuccess(false), 2000);
-    } catch (err) {
+    } catch (err: any) {
       console.log(err.message)
     }
   };
