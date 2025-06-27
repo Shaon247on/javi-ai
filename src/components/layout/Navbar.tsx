@@ -8,10 +8,10 @@ import ShaonLogo from './Logo'
 const navItems = [
   { name: 'Home', href: '#home' },
   { name: 'About', href: '#about' },
-  { name: 'Stack', href: '#stack' },
-  { name: 'Experience', href: '#experience' },
-  { name: 'Projects', href: '#projects' },
-  { name: 'Contact', href: '#contact' },
+  { name: 'Our Solution', href: '#our_solution' },
+  { name: 'In Action', href: '#in_Action' },
+  { name: 'Benefits', href: '#benefits' },
+  { name: 'Case Use', href: '#case_use' },
 ]
 
 export default function Navbar() {

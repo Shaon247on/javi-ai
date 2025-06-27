@@ -39,6 +39,7 @@ const SolutionsSection = () => {
   
     return (
       <motion.section 
+        id='our_solution'
         className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8"
         style={{ backgroundColor: '#0e1933' }}
         initial="initial"
@@ -85,7 +86,7 @@ const SolutionsSection = () => {
           style={{ backgroundColor: '#1E293B' }}
           variants={fadeInUp}
         >
-          <div className="rounded-lg p-6 sm:p-8 lg:p-12">
+          <div id='in_Action' className="rounded-lg p-6 sm:p-8 lg:p-12">
             <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-6 sm:mb-8 text-white">See Our Solutions in Action</h3>
             <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-6 sm:mb-8">
               {["TranscriptX", "Chartnnight", "Redactify", "Validity"].map((tag) => (

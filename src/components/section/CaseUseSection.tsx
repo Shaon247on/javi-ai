@@ -33,6 +33,7 @@ const CaseUseSection = () => {
   
     return (
       <motion.section 
+      id='case_use'
         className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8"
         style={{ backgroundColor: '#132247' }}
         initial="initial"

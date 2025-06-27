@@ -16,8 +16,8 @@ const BenefitsSection = () => {
     ];
   
     return (
-      <motion.section 
-        className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8"
+      <motion.section
+      id='benefits'        className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8"
         style={{ backgroundColor: '#1E293B' }}
         initial="initial"
         animate="animate"
