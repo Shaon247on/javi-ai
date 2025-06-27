@@ -8,6 +8,9 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { setOpenChatDrawer } from "@/store/uiSlice";
 import { RootState } from "@/store/store";
+import { SendHorizontal } from "lucide-react";
+import { AiFillAudio } from "react-icons/ai";
+import { MdAttachFile } from "react-icons/md";
 
 interface ChatProps {
   onClose: () => void;
@@ -27,7 +30,9 @@ export default function Chat({ onClose }: ChatProps) {
     { sender: "user" | "ai"; text: string }[]
   >([]);
   const [input, setInput] = useState("");
-  const chatDrawerOpen = useSelector((state: RootState) => state.ui.chatDrawerOpen);
+  const chatDrawerOpen = useSelector(
+    (state: RootState) => state.ui.chatDrawerOpen
+  );
   const [chatStarted, setChatStarted] = useState<boolean>(false);
   const [chatId, setChatId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -106,7 +111,6 @@ export default function Chat({ onClose }: ChatProps) {
 
   return (
     <div className="w-full h-full flex flex-col  bg-white dark:bg-gray-800 relative">
-
       {/* Drawer */}
       <div
         className={`fixed top-0 right-0 h-full w-[350px] bg-white dark:bg-gray-900 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out
@@ -202,18 +206,18 @@ export default function Chat({ onClose }: ChatProps) {
         />
       )}
       {/* Tabs */}
-      <div className="flex items-end gap-2 px-6 pt-6 bg-transparent relative z-10">
+      <div className="flex items-center justify-center gap-6 py-3.5 bg-transparent relative z-10">
         {MODELS.map((model) => {
           const isActive = selectedModel === model.name;
           return (
             <button
               key={model.name}
               onClick={() => handleTabClick(model.name)}
-              className={`px-6 py-2 rounded-t-xl font-semibold transition border-2 focus:outline-none
+              className={`px-6 py-2 rounded-m font-medium transition border-[1px] focus:outline-none
                 ${
                   isActive
-                    ? "bg-blue-600 text-white border-blue-600 shadow-lg -mb-1 z-20"
-                    : "bg-white text-blue-600 border-blue-600 hover:bg-blue-50 z-10"
+                    ? "bg-[#3B82F6] text-white border-blue-100 shadow-lg"
+                    : "bg-white border-blue-100 hover:bg-blue-50"
                 }
               `}
               style={{
@@ -229,20 +233,19 @@ export default function Chat({ onClose }: ChatProps) {
       </div>
       {/* Divider under tabs, except where active tab overlaps */}
       <div className="h-0.5 bg-blue-100 w-full absolute left-0 top-[62px] z-0" />
-      {/* Chat header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b dark:border-gray-700 bg-white dark:bg-gray-800 rounded-t-2xl z-10">
-        <span className="font-bold text-lg text-gray-900 dark:text-gray-100">
-          AI Chat
-        </span>
-        <button onClick={onClose} className="text-gray-500 hover:text-red-500">
-          ✖
-        </button>
-      </div>
+
       {/* Chat messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-2">
         {messages.length === 0 && (
-          <div className="text-gray-400 text-center">
-            Start a conversation...
+          <div>
+            <div className="text-gray-400 text-center lg:w-[808px] lg:mx-auto">
+              <h1 className="text-5xl text-start font-extrabold bg-gradient-to-l from-[#2059C9] to-[#3072F0] bg-clip-text text-transparent font-montserrat">
+                Hello, Md. Aminul Islam Shaons
+              </h1>
+              <p className="text-start font-montserrat text-2xl">
+                How Can I Help You Today
+              </p>
+            </div>
           </div>
         )}
         {messages.map((msg, idx) => (
@@ -268,22 +271,25 @@ export default function Chat({ onClose }: ChatProps) {
       {/* Input */}
       <form
         onSubmit={handleSend}
-        className="flex gap-2 px-6 py-4 border-t dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-2xl"
+        className="flex gap-2 px-6 py-4 border-t border-black/40 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-2xl"
       >
+        <button type="button" className="mr-2" disabled={loading}>
+          <MdAttachFile size={32} color="#a8a8a8"/>
+        </button>
         <input
           type="text"
-          className="flex-1 px-4 py-2 rounded border dark:bg-gray-900 dark:text-gray-100"
+          className="flex-1 h-[66px] px-2 rounded border border-black/40 focus:outline-blue-300 dark:bg-gray-900 dark:text-gray-100"
           placeholder="Type your message..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           disabled={loading}
         />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          disabled={loading}
-        >
-          {loading ? "..." : "Send"}
+
+        <button type="button" className="" disabled={loading}>
+          <AiFillAudio size={32} color="#a8a8a8"/>
+        </button>
+        <button type="submit" className="ml-2" disabled={loading}>
+          <SendHorizontal size={32} />
         </button>
       </form>
     </div>

@@ -14,22 +14,22 @@ export default function Header() {
   const sidebarOpen = useSelector((state: RootState) => state.ui.sidebarOpen);
   const pathname = usePathname();
   const user = data || {};
+  const backendUrl = "https://alibackend.duckdns.org";
   return (
     <>
       <div
         className={`flex  ${
           sidebarOpen ? "ml-0" : "ml-16"
-        } transition-all duration-300 w-full ease-in-out items-center gap-4 p-6 bg-white dark:bg-gray-700 rounded-2xl shadow cursor-pointer hover:bg-blue-50`}
+        } transition-all duration-300 w-full ease-in-out items-center gap-4 p-6 bg-white dark:bg-gray-700 shadow cursor-pointer hover:bg-blue-50`}
         onClick={() => router.push("/dashboard/profile")}
-        title="Edit profile"
       >
-        <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-blue-600 bg-gray-200 flex items-center justify-center">
+        <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
           {user.profile_picture ? (
             <img
               src={
-                user.profile_picture.startsWith("/")
+                user.profile_picture.startsWith("http")
                   ? user.profile_picture
-                  : `/${user.profile_picture}`
+                  : `${backendUrl}${user.profile_picture}`
               }
               alt="Profile"
               className="w-full h-full object-cover"

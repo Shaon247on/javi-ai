@@ -11,13 +11,15 @@ export default function DashboardLayout({
 }) {
   const sidebarOpen = useSelector((state: RootState) => state.ui.sidebarOpen);
   return (
-    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-300 ${
+    <div
+      className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-300 ${
         sidebarOpen ? "ml-[10%]" : "ml-0"
-      }`}>
-      <div 
-      className={`transition-all duration-300 ${
-        sidebarOpen ? "ml-[10%]" : "ml-10"
-      } flex flex-col justify-center`}
+      }`}
+    >
+      <div
+        className={`transition-all duration-300 ${
+          sidebarOpen ? "ml-[10%]" : "ml-10"
+        } flex flex-col justify-center`}
       >
         <Sidebar activeMenu={"New Chat"} />
       </div>
@@ -27,7 +29,7 @@ export default function DashboardLayout({
         } flex flex-col`}
       >
         <Header />
-        <main className="flex-1 text-gray-900 dark:text-gray-100 p-8">
+        <main className="flex-1 text-gray-900 dark:text-gray-100">
           {children}
         </main>
       </div>
